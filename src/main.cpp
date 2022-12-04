@@ -41,7 +41,7 @@ void setup() {
   pinMode(trigPinSensor, OUTPUT);
   pinMode(echoPinSensor, INPUT);
 
-  if(BOTtoken.length() == 0 || CHAT_ID.length() == 0) isNotifIsNotActive = false;
+  if(String(BOTtoken).length() == 0 || String(CHAT_ID).length() == 0) isNotifIsNotActive = false;
 
   Serial.print("Connecting Wifi: ");
   Serial.println(ssid);
