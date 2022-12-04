@@ -5,7 +5,7 @@
 #include "Servo.h"
 #include <NewPing.h>
 
-const char* ssid = "";
+const char* ssid = "hbj";
 const char* password = "";
 
 #define BOTtoken ""  // your Bot Token (Get from Botfather)
@@ -24,6 +24,9 @@ UniversalTelegramBot bot(BOTtoken, client);
 #define margineOfDistanse 100
 #define saveSizeValue 100
 
+#define maxTimeToConect 20 //Ilosc petli która sprawdza połaczenie WIFI. Czas wykonywania petli laczenia sie z WIFI
+bool isConnectToWifi = false;
+
 NewPing sonar(trigPinSensor, echoPinSensor, 300);
 void setup() {
   Serial.begin(9600);
@@ -38,15 +41,22 @@ void setup() {
   WiFi.begin(ssid, password);
   client.setCACert(TELEGRAM_CERTIFICATE_ROOT); // Add root certificate for api.telegram.org
 
-  while (WiFi.status() != WL_CONNECTED) {
+  int i=0;
+  while (i < maxTimeToConect) {
+    i++;
+    if(WiFi.status() == WL_CONNECTED){
+      isConnectToWifi = true;
+      break;
+    }
     Serial.print(".");
     delay(500);
   }
 
-  Serial.println("\nWiFi connected\nIP address: ");
-  Serial.println(WiFi.localIP());
-
-  bot.sendMessage(CHAT_ID, "Polaczono z WiFi :) \nIP Adres plytki: " + WiFi.localIP().toString());
+  if(isConnectToWifi){
+    Serial.println("\nWiFi connected\nIP address: ");
+    Serial.println(WiFi.localIP());
+    bot.sendMessage(CHAT_ID, "Polaczono z WiFi :) \nIP Adres plytki: " + WiFi.localIP().toString());
+  }
 
   pinMode(ledPin, OUTPUT);
   digitalWrite(ledPin, LOW);
@@ -97,7 +107,7 @@ void loop() {
   if(saveIndex >= saveSizeValue && !((distance > minSaveValue) && (distance < maxSaveValue))){
     for(int i=0; i < 10; i++){
       digitalWrite(ledPin, HIGH);
-      bot.sendMessage(CHAT_ID, "Kunolis w klatce!! (chyba) :)", "");
+      if(isConnectToWifi) bot.sendMessage(CHAT_ID, "Kunolis w klatce!! (chyba) :)", "");
       Serial.println("Kunolis chyba w klatce!!");
     }
     while(true){}
